@@ -2,6 +2,7 @@
   "name": "lambdanotes",
   "version": "0.1.0",
   "private": true,
+  "author": "Nedu Robert <nedumrobert@gmail.com",
   "dependencies": {
     "bootstrap": "^4.1.0",
     "react": "^16.3.2",
