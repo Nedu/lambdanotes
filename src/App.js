@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Route } from 'react-router-dom';
-import { v4 } from 'uuid';
 import axios from "axios";
 
 import Home from './components/Home.js';
