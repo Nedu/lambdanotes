@@ -2,9 +2,11 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Route } from 'react-router-dom';
 import { v4 } from 'uuid';
+import axios from "axios";
 
-import { notes } from './notes.js';
-import Sidebar from './components/Sidebar.js';
+import Home from './components/Home.js';
+import Register from './components/Register.js';
+import Login from './components/Login.js';
 import Notes from './components/Notes.js';
 import CreateNoteForm from './components/CreateNoteForm.js';
 import SingleNote from './components/SingleNote.js';
@@ -20,6 +22,13 @@ const Main = styled.div`
   display: flex;
 `;
 
+const requestOptions = {
+  headers: {
+    Authorization: localStorage.getItem('Authorization'),
+    'Access-Control-Allow-Origin': '*',
+  },
+};
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -29,80 +38,71 @@ class App extends Component {
   }
 
   componentDidMount() {
-    if(localStorage.getItem('notes')) {
-      this.setState({ notes: JSON.parse(localStorage.getItem('notes'))});
-    }
-    else {
-      this.setState({ notes: notes });
-    }
+    this.fetchNotes();
   }
 
-  /*takes notes from state and sets them in local memory as notes
-  */
-
-  // persistNotes() {
-  //   const { notes }  = this.state;
-  //   localStorage.setItem('notes', JSON.stringify(notes));
-  // }
+  fetchNotes = () => {
+    axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, requestOptions)
+    .then(res => {
+      console.log(res);
+      this.setState({notes: res.data})
+    })
+    .catch(err => {
+      console.log(err);
+    })
+  }
 
   addNote = note => {
-    note = { ...note, id: v4() };
-    // console.log('note', note);
-    // const notes = this.state.notes;
-    // notes.concat([note]);
-    // console.log('notes', notes);
-    // this.persistNotes();
-    this.setState({ notes: [...this.state.notes, note] });
+    const author = localStorage.getItem('UserId')
+    note = { ...note, author };
+    console.log(note);
+    axios.post(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, note, requestOptions)
+    .then(res => {
+      this.fetchNotes();
+    })
+    .catch(err => {
+      console.log(err);
+    })
   };
 
   deleteNote = id => {
-    // const notes = Object.assign([], this.state.notes);
-    // notes.filter(note => note.id !== id);
-    // notes.splice(id, 1);
-    // localStorage.setItem('notes', JSON.stringify(notes));
-    this.setState({ notes: this.state.notes.filter(note => note.id !== id) });
+    axios.delete(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
+    .then(res => {
+      this.fetchNotes();
+    })
+    .catch(err => {
+      console.log(err);
+    })
   }
 
   updateNote = (updatedNote, id) => {
-    const updatedNotes = this.state.notes.map(note => {
-      if(note.id === id) {
-        return { title: updatedNote.title, text: updatedNote.text, id: updatedNote.id }
-      }
-      else {
-        return note;
-      }
-    });
-    this.setState({ notes: updatedNotes });
+    const author = localStorage.getItem('UserId');
+    updatedNote = { ...updatedNote, author };
+    axios.put(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, updatedNote, requestOptions)
+    .then(res => {
+      this.fetchNotes();
+    })
+    .catch(err => {
+      console.log(err);
+    })
   }
 
   render() {
     return (
+      <React.Fragment>
+      <Route exact path="/" component={Home} />
+      <Route exact path="/register" component={Register} />
+      <Route exact path="/login" component={Login} />
       <Wrapper>
         <Main>
-          <Sidebar notes={this.state.notes}/>
-          <Route
-            exact
-            path="/notes"
-            render={() => <Notes notes={this.state.notes} />}
-          />
-          <Route
-            exact
-            path="/createNote"
-            render={(props) => <CreateNoteForm {...props} addNote={this.addNote} />}
-          />
-          <Route
-            exact
-            path="/notes/:id"
-            render={(props) => <SingleNote {...props} notes={this.state.notes} deleteNote={this.deleteNote} />}
-          />
-          <Route
-            exact
-            path="/edit/:id"
-            render={(props) => <EditNoteForm {...props} notes={this.state.notes} updateNote={this.updateNote} />}
-          />
+          <Route exact path="/notes" render={() => <Notes notes={this.state.notes} fetchNotes={this.fetchNotes} />} />
+          <Route exact path="/createNote" render={props => <CreateNoteForm {...props} notes={this.state.notes} addNote={this.addNote} />} />
+          <Route exact path="/notes/:id" render={props => <SingleNote {...props} notes={this.state.notes} deleteNote={this.deleteNote} />} />
+          <Route exact path="/edit/:id" render={props => <EditNoteForm {...props} notes={this.state.notes} updateNote={this.updateNote} />} />
         </Main>
       </Wrapper>
-    );
+    </React.Fragment>
+  );
   }
 }
 

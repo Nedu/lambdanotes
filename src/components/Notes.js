@@ -6,6 +6,8 @@ import ReactMarkdown from 'react-markdown';
 import Dragula from 'react-dragula';
 import { Button, ButtonGroup } from 'reactstrap';
 
+import Sidebar from './Sidebar';
+
 const Wrapper = styled.div`
   background-color: #f2f1f2;
   width: 75%;
@@ -114,10 +116,6 @@ const StyledButton = styled(Button)`
   background-color: #55babc;
 `;
 
-// const StyledButtonBottom = styled(StyledButton)`
-//     padding-left: 1.61em;
-// `;
-
 const ButtonContainer = styled.div`
   @media (max-width: 1080px) {
     margin-bottom: 0.5em;
@@ -133,17 +131,14 @@ class Notes extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            searchInput: '',
-            sortKey: ''
+          searchInput: '',
+          sortKey: ''
         }
         this.filters = {
             'Title_ASC': this.sortByTitleAscending,
-            'Title_DESC': this.sortByTitleDescending,
-            // 'ID_ASC': this.sortByIdAscending,
-            // 'ID_DESC': this.sortByIdDescending
+            'Title_DESC': this.sortByTitleDescending
         }
     }
-
 
     handleSearchInput = e => {
         this.setState({ searchInput: e.target.value });
@@ -175,32 +170,6 @@ class Notes extends Component {
         return 0;
     }
 
-    // sortByIdAscending = (a, b) => {
-    //     a = a.title.toUpperCase();
-    //     b = b.title.toUpperCase();
-
-    //     if (a < b) {
-    //       return -1;
-    //     }
-    //     if (a > b) {
-    //       return 1;
-    //     }
-    //     return 0;
-    // }
-
-    // sortByIdDescending = (a, b) => {
-    //     a = a.title.toUpperCase();
-    //     b = b.title.toUpperCase();
-
-    //     if (a < b) {
-    //       return 1;
-    //     }
-    //     if (a > b) {
-    //       return -1;
-    //     }
-    //     return 0;
-    // }
-
     dragulaDecorator = (componentBackingInstance) => {
         if(componentBackingInstance) {
             let options = { };
@@ -209,8 +178,15 @@ class Notes extends Component {
     }
 
     render() {
+    // if(!this.props.notes){
+    //     return (
+    //       <div>Loading...</div>
+    //     )
+    // }
         const sortedList = this.props.notes.sort(this.filters[this.state.sortKey]);
-        return <Wrapper>
+        return <React.Fragment>
+        <Sidebar notes={this.props.notes}/>
+            <Wrapper>
             <Heading>Your Notes:</Heading>
             <Container>
               <ButtonContainer>
@@ -230,32 +206,18 @@ class Notes extends Component {
                     Sort By Title Descending
                   </StyledButton>
                 </StyledButtonGroup>
-                {/* <StyledButtonGroup>
-                  <StyledButtonBottom
-                    onClick={() => this.setState({ sortKey: 'ID_ASC' })}
-                  >
-                    Sort By ID Ascending
-                  </StyledButtonBottom>
-                  <StyledButtonBottom
-                    onClick={() =>
-                      this.setState({ sortKey: 'ID_DESC' })
-                    }
-                  >
-                    Sort By ID Descending
-                  </StyledButtonBottom>
-                </StyledButtonGroup> */}
               </ButtonContainer>
               <Input type="text" value={this.state.searchInput} placeholder="Search Notes" onChange={this.handleSearchInput} />
             </Container>
             <List ref={this.dragulaDecorator}>
               {sortedList.map(note => {
                 if (this.state.searchInput === '') {
-                  return <IndividualNote key={note.id}>
-                      <StyledLink to={`/notes/${note.id}`}>
+                  return <IndividualNote key={note._id}>
+                      <StyledLink to={`/notes/${note._id}`}>
                         <NoteHeading>{note.title}</NoteHeading>
                         <hr />
                         <Dotdotdot clamp={5}>
-                          <ReactMarkdown source={note.text} />
+                          <ReactMarkdown source={note.content} />
                         </Dotdotdot>
                       </StyledLink>
                     </IndividualNote>;
@@ -263,22 +225,23 @@ class Notes extends Component {
                     .toLowerCase()
                     .includes(
                       this.state.searchInput.toLowerCase(),
-                    ) || note.text
+                    ) || note.content
                     .toLowerCase()
                     .includes(this.state.searchInput.toLowerCase())) {
-                  return <IndividualNote key={note.id}>
-                      <StyledLink to={`/notes/${note.id}`}>
+                  return <IndividualNote key={note._id}>
+                      <StyledLink to={`/notes/${note._id}`}>
                         <NoteHeading>{note.title}</NoteHeading>
                         <hr />
                         <Dotdotdot clamp={5}>
-                          <NoteParagraph>{note.text}</NoteParagraph>
+                          <NoteParagraph>{note.content}</NoteParagraph>
                         </Dotdotdot>
                       </StyledLink>
                     </IndividualNote>;
                 }
               })}
             </List>
-          </Wrapper>;
+          </Wrapper>
+          </React.Fragment>;
     }
 };
 

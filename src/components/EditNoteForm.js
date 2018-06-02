@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import Switch from 'react-switch';
 import ReactMarkdown from 'react-markdown';
+import axios from 'axios';
+import Sidebar from './Sidebar';
 
 const Wrapper = styled.div`
   background-color: #f2f1f2; 
@@ -61,26 +64,34 @@ const SwitchText = styled.h3`
   line-height: 0.8;
 `;
 
+const requestOptions = {
+  headers: {
+    Authorization: localStorage.getItem('Authorization'),
+    'Access-Control-Allow-Origin': '*',
+  },
+};
+
 class EditNoteForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: '',
       title: '',
-      text: '',
+      content: '',
+      tags: [],
       checked: false
     };
   }
 
   componentDidMount() {
-    const NoteId = this.props.match.params.id;
-    const note = this.props.notes.find(item => item.id === NoteId);
-    this.setState({
-      id: note.id,
-      title: note.title,
-      text: note.text,
-      checked: false,
-    });
+    const id = this.props.match.params.id;
+    axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
+    .then(res => {
+      const { title, content, tags } = res.data;
+      this.setState({ title, content, tags})
+    })
+    .catch(err => {
+      console.log(err);
+    })
   }
 
   handleInputChange = e => {
@@ -89,8 +100,8 @@ class EditNoteForm extends Component {
 
   handleUpdateNote = e => {
     e.preventDefault();
-    const { id, title, text } = this.state;
-    this.props.updateNote({ id, title, text }, this.props.match.params.id);
+    const { title, content, tags } = this.state;
+    this.props.updateNote({ title, content }, this.props.match.params.id);
     this.props.history.push(`/notes/${this.props.match.params.id}`);
   };
 
@@ -99,7 +110,9 @@ class EditNoteForm extends Component {
   };
 
   render() {
-    return <Wrapper>
+    return <React.Fragment>
+      <Sidebar />
+      <Wrapper>
         <Container>
           <Heading>Edit Note:</Heading>
           <SwitchContainer>
@@ -109,17 +122,17 @@ class EditNoteForm extends Component {
         </Container>
         <Form>
           <Input type="text" placeholder="Note Title" onChange={this.handleInputChange} name="title" value={this.state.title} />
-          <TextArea rows="15" cols="30" value={this.state.text} onChange={this.handleInputChange} name="text" />
+          <TextArea rows="15" cols="30" value={this.state.content} onChange={this.handleInputChange} name="content" />
           {this.state.checked ? <div>
               <h3>Markdown Output:</h3>
-              <ReactMarkdown source={this.state.text} />
+              <ReactMarkdown source={this.state.content} />
             </div> : null}
           <Button type="submit" onClick={this.handleUpdateNote}>
             Update
           </Button>
         </Form>
-      </Wrapper>;
+      </Wrapper></React.Fragment>;
   }
 }
 
-export default EditNoteForm;
+export default withRouter(EditNoteForm);

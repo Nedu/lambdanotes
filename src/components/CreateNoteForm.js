@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import Switch from 'react-switch';
 import ReactMarkdown from 'react-markdown';
+import Sidebar from './Sidebar';
 
 const Wrapper = styled.div`
     background-color: #f2f1f2; 
@@ -66,7 +67,7 @@ class CreateNoteForm extends Component {
         super(props);
         this.state = {
             title: '',
-            text: 'Note Content',
+            content: 'Note Content',
             checked: false
         }
     }
@@ -77,9 +78,9 @@ class CreateNoteForm extends Component {
 
     handleSaveNote = e => {
         e.preventDefault();
-        const { title, text } = this.state;
-        this.props.addNote({ title, text });
-        this.setState({ title: '', text: '' });
+        const { title, content } = this.state;
+        this.props.addNote({ title, content });
+        this.setState({ title: '', content: '' });
         this.props.history.push("/notes");
     }
 
@@ -88,7 +89,9 @@ class CreateNoteForm extends Component {
     }
 
     render() {
-        return <Wrapper>
+        return <React.Fragment>
+        <Sidebar />
+        <Wrapper>
             <Container>
               <Heading>Create New Note:</Heading>
               <SwitchContainer>
@@ -98,15 +101,16 @@ class CreateNoteForm extends Component {
             </Container>
             <Form>
               <Input type="text" placeholder="Note Title" onChange={this.handleInputChange} name="title" value={this.state.title} />
-              <TextArea rows="10" cols="10" value={this.state.text} onChange={this.handleInputChange} name="text" />
+              <TextArea rows="10" cols="10" value={this.state.content} onChange={this.handleInputChange} name="content" />
               {this.state.checked ? <div><h3>Markdown Output:</h3>
-              <ReactMarkdown source={this.state.text} /></div> : null }
+              <ReactMarkdown source={this.state.content} /></div> : null }
               
               <Button type="submit" onClick={this.handleSaveNote}>
                 Save
               </Button>
             </Form>
-          </Wrapper>;
+          </Wrapper>
+        </React.Fragment>;
     }
 }
 

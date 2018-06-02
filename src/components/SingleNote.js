@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { Button, Modal, ModalBody } from 'reactstrap';
 import ReactMarkdown from 'react-markdown';
+import axios from "axios";
+import Sidebar from './Sidebar';
 
 const Wrapper = styled.div`
     background-color: #f2f1f2;
@@ -65,12 +67,34 @@ const CancelButton = styled.button`
     border: none;
 `;
 
+const requestOptions = {
+    headers: {
+        Authorization: localStorage.getItem('Authorization'),
+        'Access-Control-Allow-Origin': '*',
+    },
+};
+
 class SingleNote extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            modal: false
+            modal: false,
+            title: null,
+            content: null,
+            note: []
         };
+    }
+
+    componentDidMount() {
+        const { id } = this.props.match.params;
+        axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
+        .then(res => {
+            console.log(res)
+            this.setState({note: res.data})
+        })
+        .catch(err => {
+            console.log(err);
+        })       
     }
 
     toggleModal = () => {
@@ -85,11 +109,14 @@ class SingleNote extends Component {
 
     render() {
         const NoteId = this.props.match.params.id;
-        const note = this.props.notes.find(item => item.id === NoteId);
-        
-        return <Wrapper>
+        if(!this.state.note) {
+            return <div>Loading...</div>
+        }
+        return <React.Fragment>
+        <Sidebar />
+        <Wrapper>
             <LinksContainer>
-              <StyledLink to={`/edit/${note.id}`}>edit</StyledLink>
+                <StyledLink to={`/edit/${NoteId}`}>edit</StyledLink>
               <DeleteButton onClick={() => this.toggleModal()}>
                 delete
               </DeleteButton>
@@ -105,10 +132,10 @@ class SingleNote extends Component {
                   </StyledModalBody>
                 </StyledModal> : null}
             </LinksContainer>
-            <NoteHeading>{note.title}</NoteHeading>
-            <ReactMarkdown source={note.text} />
-          </Wrapper>;
+            <NoteHeading>{this.state.note.title}</NoteHeading>
+            <ReactMarkdown source={this.state.note.content} />
+          </Wrapper></React.Fragment>;
     }
 }
 
-export default SingleNote;
+export default withRouter(SingleNote);
