@@ -4,7 +4,6 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'dragula/dist/dragula.min.css';
 
-import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
