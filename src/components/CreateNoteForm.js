@@ -90,7 +90,7 @@ class CreateNoteForm extends Component {
 
     render() {
         return <React.Fragment>
-        <Sidebar />
+        <Sidebar notes={this.props.notes}/>
         <Wrapper>
             <Container>
               <Heading>Create New Note:</Heading>

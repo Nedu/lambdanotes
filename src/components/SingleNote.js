@@ -113,7 +113,7 @@ class SingleNote extends Component {
             return <div>Loading...</div>
         }
         return <React.Fragment>
-        <Sidebar />
+        <Sidebar notes={this.props.notes}/>
         <Wrapper>
             <LinksContainer>
                 <StyledLink to={`/edit/${NoteId}`}>edit</StyledLink>
