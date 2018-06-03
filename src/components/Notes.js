@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import { Badge } from 'reactstrap';
 import Dotdotdot from 'react-dotdotdot';
 import ReactMarkdown from 'react-markdown';
 import Dragula from 'react-dragula';
 import { Button, ButtonGroup } from 'reactstrap';
+import { SyncLoader } from 'react-spinners';
 
 import Sidebar from './Sidebar';
 
@@ -178,11 +180,38 @@ class Notes extends Component {
     }
 
     render() {
-    // if(!this.props.notes){
-    //     return (
-    //       <div>Loading...</div>
-    //     )
-    // }
+    if(this.props.loading){
+        return (
+          <React.Fragment>
+            <Sidebar notes={this.props.notes} />
+            <Wrapper>
+              <Heading>Your Notes:</Heading>
+              <Container>
+              <ButtonContainer>
+                <StyledButtonGroup>
+                  <StyledButton
+                    onClick={() =>
+                      this.setState({ sortKey: 'Title_ASC' })
+                    }
+                  >
+                    Sort By Title Ascending
+                  </StyledButton>
+                  <StyledButton
+                    onClick={() =>
+                      this.setState({ sortKey: 'Title_DESC' })
+                    }
+                  >
+                    Sort By Title Descending
+                  </StyledButton>
+                </StyledButtonGroup>
+              </ButtonContainer>
+              <Input type="text" value={this.state.searchInput} placeholder="Search Notes" onChange={this.handleSearchInput} />
+            </Container>
+              <SyncLoader color={'#00B9BC'} loading={this.props.loading}/>
+            </Wrapper>
+          </React.Fragment>
+        )
+    }
         const sortedList = this.props.notes.sort(this.filters[this.state.sortKey]);
         return <React.Fragment>
         <Sidebar notes={this.props.notes}/>
@@ -219,6 +248,8 @@ class Notes extends Component {
                         <Dotdotdot clamp={5}>
                           <ReactMarkdown source={note.content} />
                         </Dotdotdot>
+                        <hr />
+                        <Badge color="info">Info</Badge>
                       </StyledLink>
                     </IndividualNote>;
                 } else if (note.title
@@ -235,6 +266,8 @@ class Notes extends Component {
                         <Dotdotdot clamp={5}>
                           <NoteParagraph>{note.content}</NoteParagraph>
                         </Dotdotdot>
+                        <hr />
+                        <Badge color="info">Info</Badge>
                       </StyledLink>
                     </IndividualNote>;
                 }

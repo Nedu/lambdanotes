@@ -4,6 +4,8 @@ import { withRouter, Link } from 'react-router-dom';
 import { Button, Modal, ModalBody } from 'reactstrap';
 import ReactMarkdown from 'react-markdown';
 import axios from "axios";
+import { SyncLoader } from 'react-spinners';
+
 import Sidebar from './Sidebar';
 
 const Wrapper = styled.div`
@@ -81,7 +83,8 @@ class SingleNote extends Component {
             modal: false,
             title: null,
             content: null,
-            note: []
+            note: [],
+            loading: true
         };
     }
 
@@ -90,7 +93,7 @@ class SingleNote extends Component {
         axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
         .then(res => {
             console.log(res)
-            this.setState({note: res.data})
+            this.setState({note: res.data, loading: false})
         })
         .catch(err => {
             console.log(err);
@@ -108,6 +111,33 @@ class SingleNote extends Component {
     }
 
     render() {
+        if(this.state.loading) {
+            return(
+                <React.Fragment>
+                    <Sidebar notes={this.props.notes}/>
+                    <Wrapper>
+                        <LinksContainer>
+                            <StyledLink to={`/edit/${NoteId}`}>edit</StyledLink>
+                            <DeleteButton onClick={() => this.toggleModal()}>
+                                delete
+              </DeleteButton>
+                            {this.state.modal ? <StyledModal isOpen={this.state.modal}>
+                                <StyledModalBody>
+                                    Are you sure you want to delete this?
+                    <Link to="/notes" onClick={() => this.handleDelete(NoteId)}>
+                                        <StyledButton color="danger">Delete</StyledButton>
+                                    </Link>
+                                    <CancelButton color="secondary" onClick={() => this.toggleModal()}>
+                                        No
+                    </CancelButton>
+                                </StyledModalBody>
+                            </StyledModal> : null}
+                        </LinksContainer>
+                        <SyncLoader color={'#00B9BC'} loading={this.props.loading} />
+                    </Wrapper>
+                </React.Fragment>
+            )
+        }
         const NoteId = this.props.match.params.id;
         if(!this.state.note) {
             return <div>Loading...</div>

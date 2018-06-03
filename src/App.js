@@ -19,6 +19,7 @@ const Wrapper = styled.div`
 
 const Main = styled.div`
   display: flex;
+  height: auto
 `;
 
 const requestOptions = {
@@ -33,6 +34,7 @@ class App extends Component {
     super(props);
     this.state = {
       notes: [],
+      loading: true
     };
   }
 
@@ -44,7 +46,7 @@ class App extends Component {
     axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, requestOptions)
     .then(res => {
       console.log(res);
-      this.setState({notes: res.data})
+      this.setState({notes: res.data, loading: false})
     })
     .catch(err => {
       console.log(err);
@@ -94,7 +96,7 @@ class App extends Component {
       <Route exact path="/login" component={Login} />
       <Wrapper>
         <Main>
-          <Route exact path="/notes" render={() => <Notes notes={this.state.notes} fetchNotes={this.fetchNotes} />} />
+          <Route exact path="/notes" render={() => <Notes notes={this.state.notes} loading={this.state.loading} />} />
           <Route exact path="/createNote" render={props => <CreateNoteForm {...props} notes={this.state.notes} addNote={this.addNote} />} />
           <Route exact path="/notes/:id" render={props => <SingleNote {...props} notes={this.state.notes} deleteNote={this.deleteNote} />} />
           <Route exact path="/edit/:id" render={props => <EditNoteForm {...props} notes={this.state.notes} updateNote={this.updateNote} />} />
