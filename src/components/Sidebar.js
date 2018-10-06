@@ -36,6 +36,11 @@ const StyledLink = styled(Link)`
   cursor: pointer;
 `;
 
+const logout = () => {
+  localStorage.removeItem('Authorization');
+  this.props.history.push('/');
+}
+
 const Sidebar = (props) => {
     return <Wrapper>
         <Title>Lambda Notes</Title>
@@ -46,6 +51,9 @@ const Sidebar = (props) => {
           <Button>Create New Note</Button>
         </StyledLink>
         <CSVLink data={props.notes} filename={"my-notes.csv"} target="_blank"><Button>Export Notes to CSV</Button></CSVLink>
+        <StyledLink to="/">
+          <Button onClick={this.logout}>Log out</Button>
+        </StyledLink>
       </Wrapper>;
 }
 

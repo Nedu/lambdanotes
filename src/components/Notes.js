@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 import { Badge } from 'reactstrap';
 import Dotdotdot from 'react-dotdotdot';
 import ReactMarkdown from 'react-markdown';
-import Dragula from 'react-dragula';
 import { Button, ButtonGroup } from 'reactstrap';
 import { SyncLoader } from 'react-spinners';
+import axios from "axios";
 
 import Sidebar from './Sidebar';
 
@@ -129,61 +129,78 @@ const ButtonContainer = styled.div`
   }
 `;
 
+const requestOptions = {
+  headers: {
+    Authorization: localStorage.getItem('Authorization'),
+    'Access-Control-Allow-Origin': '*',
+  },
+};
+
 class Notes extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-          searchInput: '',
-          sortKey: ''
-        }
-        this.filters = {
-            'Title_ASC': this.sortByTitleAscending,
-            'Title_DESC': this.sortByTitleDescending
-        }
-    }
+  constructor(props) {
+      super(props);
+      this.state = {
+        searchInput: '',
+        sortKey: '',
+        loading: true,
+        notes: [],
+      }
+      this.filters = {
+          'Title_ASC': this.sortByTitleAscending,
+          'Title_DESC': this.sortByTitleDescending
+      }
+  }
 
-    handleSearchInput = e => {
-        this.setState({ searchInput: e.target.value });
-    }
+  handleSearchInput = e => {
+      this.setState({ searchInput: e.target.value });
+  }
 
-    sortByTitleAscending = (a, b) => {
-        a = a.title.toUpperCase();
-        b = b.title.toUpperCase();
+  sortByTitleAscending = (a, b) => {
+      a = a.title.toUpperCase();
+      b = b.title.toUpperCase();
 
-        if(a < b) {
-            return -1;
-        }
-        if(a > b) {
-            return 1;
-        }
-        return 0;
-    }
-
-    sortByTitleDescending = (a, b) => {
-        a = a.title.toUpperCase();
-        b = b.title.toUpperCase();
-
-        if (a < b) {
-          return 1;
-        }
-        if (a > b) {
+      if(a < b) {
           return -1;
-        }
-        return 0;
-    }
+      }
+      if(a > b) {
+          return 1;
+      }
+      return 0;
+  }
 
-    dragulaDecorator = (componentBackingInstance) => {
-        if(componentBackingInstance) {
-            let options = { };
-            Dragula([componentBackingInstance], options);
-        }
-    }
+  sortByTitleDescending = (a, b) => {
+      a = a.title.toUpperCase();
+      b = b.title.toUpperCase();
+
+      if (a < b) {
+        return 1;
+      }
+      if (a > b) {
+        return -1;
+      }
+      return 0;
+  }
+
+  componentDidMount() {
+    this.fetchNotes();
+  }
+
+  fetchNotes = () => {
+    axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, requestOptions)
+    .then(res => {
+      console.log(res);
+      this.setState({notes: res.data, loading: false})
+    })
+    .catch(err => {
+      console.log(err);
+    })
+  }
 
     render() {
-    if(this.props.loading){
+    if(this.state.loading){
         return (
           <React.Fragment>
-            <Sidebar notes={this.props.notes} />
+            <Sidebar notes={this.state.notes} />
             <Wrapper>
               <Heading>Your Notes:</Heading>
               <Container>
@@ -207,14 +224,14 @@ class Notes extends Component {
               </ButtonContainer>
               <Input type="text" value={this.state.searchInput} placeholder="Search Notes" onChange={this.handleSearchInput} />
             </Container>
-              <SyncLoader color={'#00B9BC'} loading={this.props.loading}/>
+              <SyncLoader color={'#00B9BC'} loading={this.state.loading}/>
             </Wrapper>
           </React.Fragment>
         )
     }
-        const sortedList = this.props.notes.sort(this.filters[this.state.sortKey]);
+        const sortedList = this.state.notes.sort(this.filters[this.state.sortKey]);
         return <React.Fragment>
-        <Sidebar notes={this.props.notes}/>
+        <Sidebar notes={this.state.notes}/>
             <Wrapper>
             <Heading>Your Notes:</Heading>
             <Container>

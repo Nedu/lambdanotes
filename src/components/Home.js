@@ -19,6 +19,7 @@ const HomeTitle = styled.h1`
   font-style: italic;
   font-variant: small-caps;
   font-weight: 700;
+  color: #00b9bc;
 `;
 
 const mainBg = {

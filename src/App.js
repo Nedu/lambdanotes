@@ -10,6 +10,7 @@ import Notes from './components/Notes.js';
 import CreateNoteForm from './components/CreateNoteForm.js';
 import SingleNote from './components/SingleNote.js';
 import EditNoteForm from './components/EditNoteForm.js';
+import './App.css';
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -32,26 +33,35 @@ const requestOptions = {
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      notes: [],
-      loading: true
-    };
+
+    this.setAuthToken();
   }
 
-  componentDidMount() {
-    this.fetchNotes();
+  setAuthToken = () => {
+    const token = localStorage.getItem('authToken');
+
+    if(token) axios.defaults.headers.common.Authorization = token;
+    else delete axios.defaults.headers.common.Authorization;
   }
 
-  fetchNotes = () => {
-    axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, requestOptions)
-    .then(res => {
-      console.log(res);
-      this.setState({notes: res.data, loading: false})
-    })
-    .catch(err => {
-      console.log(err);
-    })
+  loginSuccess = (data) => {
+    localStorage.setItem('authToken', `Bearer ${data.token}`);
   }
+
+  // componentDidMount() {
+  //   this.fetchNotes();
+  // }
+
+  // fetchNotes = () => {
+  //   axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, requestOptions)
+  //   .then(res => {
+  //     console.log(res);
+  //     this.setState({notes: res.data, loading: false})
+  //   })
+  //   .catch(err => {
+  //     console.log(err);
+  //   })
+  // }
 
   addNote = note => {
     const author = localStorage.getItem('UserId')
@@ -96,7 +106,7 @@ class App extends Component {
       <Route exact path="/login" component={Login} />
       <Wrapper>
         <Main>
-          <Route exact path="/notes" render={() => <Notes notes={this.state.notes} loading={this.state.loading} />} />
+          <Route exact path="/notes" render={() => <Notes />} />
           <Route exact path="/createNote" render={props => <CreateNoteForm {...props} notes={this.state.notes} addNote={this.addNote} />} />
           <Route exact path="/notes/:id" render={props => <SingleNote {...props} notes={this.state.notes} deleteNote={this.deleteNote} />} />
           <Route exact path="/edit/:id" render={props => <EditNoteForm {...props} notes={this.state.notes} updateNote={this.updateNote} />} />

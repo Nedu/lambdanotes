@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import Switch from 'react-switch';
 import ReactMarkdown from 'react-markdown';
+
 import Sidebar from './Sidebar';
 
 const Wrapper = styled.div`
@@ -68,6 +69,7 @@ class CreateNoteForm extends Component {
         this.state = {
             title: '',
             content: 'Note Content',
+            tags: [],
             checked: false
         }
     }
@@ -78,9 +80,9 @@ class CreateNoteForm extends Component {
 
     handleSaveNote = e => {
         e.preventDefault();
-        const { title, content } = this.state;
-        this.props.addNote({ title, content });
-        this.setState({ title: '', content: '' });
+        const { title, content, tags } = this.state;
+        this.props.addNote({ title, content, tags });
+        this.setState({ title: '', content: '', tags: [] });
         this.props.history.push("/notes");
     }
 
@@ -90,7 +92,7 @@ class CreateNoteForm extends Component {
 
     render() {
         return <React.Fragment>
-        <Sidebar notes={this.props.notes}/>
+        <Sidebar />
         <Wrapper>
             <Container>
               <Heading>Create New Note:</Heading>
