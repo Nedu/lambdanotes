@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import styled from 'styled-components';
-import { CSVLink } from 'react-csv';
 
 const Wrapper = styled.div`
   background-color: #d6d6d6;
@@ -36,25 +35,29 @@ const StyledLink = styled(Link)`
   cursor: pointer;
 `;
 
-const logout = () => {
-  localStorage.removeItem('Authorization');
-  this.props.history.push('/');
-}
+// const logout = (props) => {
+//   localStorage.removeItem('authToken');
+//   props.history.push('/');
+// }
 
 const Sidebar = (props) => {
+  function logout () {
+    localStorage.removeItem('authToken');
+    props.history.push('/');
+  }
+
     return <Wrapper>
-        <Title>Lambda Notes</Title>
-        <StyledLink to="/notes">
-          <Button>View Your Notes</Button>
-        </StyledLink>
-        <StyledLink to="/createNote">
-          <Button>Create New Note</Button>
-        </StyledLink>
-        <CSVLink data={props.notes} filename={"my-notes.csv"} target="_blank"><Button>Export Notes to CSV</Button></CSVLink>
-        <StyledLink to="/">
-          <Button onClick={this.logout}>Log out</Button>
-        </StyledLink>
-      </Wrapper>;
+      <Title>Lambda Notes</Title>
+      <StyledLink to="/notes">
+        <Button>View Your Notes</Button>
+      </StyledLink>
+      <StyledLink to="/createNote">
+        <Button>Create New Note</Button>
+      </StyledLink>
+      <StyledLink to="/">
+        <Button onClick={logout}>Log out</Button>
+      </StyledLink>
+    </Wrapper>;
 }
 
-export default Sidebar;
+export default withRouter(Sidebar);
