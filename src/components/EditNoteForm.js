@@ -66,7 +66,7 @@ const SwitchText = styled.h3`
 
 const requestOptions = {
   headers: {
-    Authorization: localStorage.getItem('Authorization'),
+    Authorization: localStorage.getItem('authToken'),
     'Access-Control-Allow-Origin': '*',
   },
 };
@@ -83,26 +83,46 @@ class EditNoteForm extends Component {
   }
 
   componentDidMount() {
-    const id = this.props.match.params.id;
-    axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
-    .then(res => {
-      const { title, content, tags } = res.data;
-      this.setState({ title, content, tags})
-    })
-    .catch(err => {
-      console.log(err);
-    })
+    const userID = this.props.userID();
+    if(userID) {
+      const id = this.props.match.params.id;
+      axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
+      .then(res => {
+        const { title, content, tags } = res.data;
+        this.setState({ title, content, tags})
+      })
+      .catch(err => {
+        console.log(err);
+      })
+    } else {
+      this.props.history.push('/');
+    }
   }
 
   handleInputChange = e => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
+  updateNote = (updatedNote, id) => {
+    const author = localStorage.getItem('UserId');
+    updatedNote = { ...updatedNote, author };
+    
+  }
+
   handleUpdateNote = e => {
     e.preventDefault();
     const { title, content, tags } = this.state;
-    this.props.updateNote({ title, content }, this.props.match.params.id);
-    this.props.history.push(`/notes/${this.props.match.params.id}`);
+    let updatedNote = { title, content, tags};
+    const author = this.props.userID;
+    updatedNote = { ...updatedNote, author };
+
+    axios.put(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${this.props.match.params.id}`, updatedNote, requestOptions)
+    .then(() => {
+      this.props.history.push(`/notes/${this.props.match.params.id}`);
+    })
+    .catch(err => {
+      console.log(err);
+    })
   };
 
   handleToggle = checked => {
@@ -111,7 +131,7 @@ class EditNoteForm extends Component {
 
   render() {
     return <React.Fragment>
-      <Sidebar notes={this.props.notes}/>
+      <Sidebar />
       <Wrapper>
         <Container>
           <Heading>Edit Note:</Heading>
