@@ -47,14 +47,13 @@ class Login extends Component {
           .post(`https://lambda-notes-app.herokuapp.com/api/v1/login`, user)
           .then(res => {
             console.log(res);
-            localStorage.setItem('Authorization', `Bearer ${res.data.token}`);
-            localStorage.setItem('UserId', `${res.data.user._id}`);            
+            this.props.onLogin(res.data)
             this.setState({ username: '', password: '' })
             this.props.history.push('/notes');
           })
           .catch(err => {
             console.log(err);
-            localStorage.removeItem('Authorization');
+            localStorage.removeItem('authToken');
           });
     };
 
