@@ -273,7 +273,7 @@ class Notes extends Component {
                           <ReactMarkdown source={note.content} />
                         </Dotdotdot>
                         <hr />
-                        <Badge color="info">Info</Badge>
+                        {/* <Badge color="info">Info</Badge> */}
                       </StyledLink>
                     </IndividualNote>;
                 } else if (note.title
@@ -291,7 +291,7 @@ class Notes extends Component {
                           <NoteParagraph>{note.content}</NoteParagraph>
                         </Dotdotdot>
                         <hr />
-                        <Badge color="info">Info</Badge>
+                        {/* <Badge color="info">Info</Badge> */}
                       </StyledLink>
                     </IndividualNote>;
                 }
