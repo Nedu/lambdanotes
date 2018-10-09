@@ -23,16 +23,13 @@ const Main = styled.div`
   height: auto
 `;
 
-const requestOptions = {
-  headers: {
-    Authorization: localStorage.getItem('Authorization'),
-    'Access-Control-Allow-Origin': '*',
-  },
-};
-
 class App extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      userID: '',
+      username: ''
+    }
 
     this.setAuthToken();
   }
@@ -44,72 +41,34 @@ class App extends Component {
     else delete axios.defaults.headers.common.Authorization;
   }
 
-  loginSuccess = (data) => {
+  authSuccess = (data) => {
     localStorage.setItem('authToken', `Bearer ${data.token}`);
+    this.setState({ username: data.user.username, userID: data.user._id })
   }
 
-  // componentDidMount() {
-  //   this.fetchNotes();
-  // }
+  getUserID() {
+		const token = localStorage.getItem('authToken');
 
-  // fetchNotes = () => {
-  //   axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, requestOptions)
-  //   .then(res => {
-  //     console.log(res);
-  //     this.setState({notes: res.data, loading: false})
-  //   })
-  //   .catch(err => {
-  //     console.log(err);
-  //   })
-  // }
+		if (token) {
+			const base64Url = token.split('.')[1];
+			const base64 = base64Url.replace('-', '+').replace('_', '/');
 
-  addNote = note => {
-    const author = localStorage.getItem('UserId')
-    note = { ...note, author };
-    console.log(note);
-    axios.post(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, note, requestOptions)
-    .then(res => {
-      this.fetchNotes();
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  };
-
-  deleteNote = id => {
-    axios.delete(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
-    .then(res => {
-      this.fetchNotes();
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
-
-  updateNote = (updatedNote, id) => {
-    const author = localStorage.getItem('UserId');
-    updatedNote = { ...updatedNote, author };
-    axios.put(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, updatedNote, requestOptions)
-    .then(res => {
-      this.fetchNotes();
-    })
-    .catch(err => {
-      console.log(err);
-    })
-  }
+			return JSON.parse(window.atob(base64)).sub;
+		}
+	}
 
   render() {
     return (
       <React.Fragment>
       <Route exact path="/" component={Home} />
-      <Route exact path="/register" component={Register} />
-      <Route exact path="/login" component={Login} />
+      <Route exact path="/register" render={props => <Register {...props} onRegister={this.authSuccess} /> } />
+      <Route exact path="/login" render={props => <Login {...props} onLogin={this.authSuccess} /> } />
       <Wrapper>
         <Main>
-          <Route exact path="/notes" render={() => <Notes />} />
-          <Route exact path="/createNote" render={props => <CreateNoteForm {...props} notes={this.state.notes} addNote={this.addNote} />} />
-          <Route exact path="/notes/:id" render={props => <SingleNote {...props} notes={this.state.notes} deleteNote={this.deleteNote} />} />
-          <Route exact path="/edit/:id" render={props => <EditNoteForm {...props} notes={this.state.notes} updateNote={this.updateNote} />} />
+          <Route exact path="/notes" render={props => <Notes {...props} userID={this.getUserID} />} />
+          <Route exact path="/createNote" render={props => <CreateNoteForm {...props} userID={this.getUserID} />} />
+          <Route exact path="/notes/:id" render={props => <SingleNote {...props} userID={this.getUserID} />} />
+          <Route exact path="/edit/:id" render={props => <EditNoteForm {...props} userID={this.getUserID} />} />
         </Main>
       </Wrapper>
     </React.Fragment>
