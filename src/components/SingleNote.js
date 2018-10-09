@@ -71,7 +71,7 @@ const CancelButton = styled.button`
 
 const requestOptions = {
     headers: {
-        Authorization: localStorage.getItem('Authorization'),
+        Authorization: localStorage.getItem('authToken'),
         'Access-Control-Allow-Origin': '*',
     },
 };
@@ -89,15 +89,20 @@ class SingleNote extends Component {
     }
 
     componentDidMount() {
-        const { id } = this.props.match.params;
-        axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
-        .then(res => {
-            console.log(res)
-            this.setState({note: res.data, loading: false})
-        })
-        .catch(err => {
-            console.log(err);
-        })       
+        const userID = this.props.userID();
+        if(userID) {
+            const { id } = this.props.match.params;
+            axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
+            .then(res => {
+                console.log(res)
+                this.setState({note: res.data, loading: false})
+            })
+            .catch(err => {
+                console.log(err);
+            })      
+        } else {
+            this.props.history.push('/');
+        }
     }
 
     toggleModal = () => {
@@ -106,15 +111,22 @@ class SingleNote extends Component {
 
     handleDelete = (id) => {
         this.toggleModal();
-        this.props.deleteNote(id);
-        this.props.history.push("/notes");
+
+        axios.delete(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
+        .then(() => {
+          this.props.history.push("/notes");
+        })
+        .catch(err => {
+          console.log(err);
+        })        
     }
 
     render() {
+        const NoteId = this.props.match.params.id;
         if(this.state.loading) {
             return(
                 <React.Fragment>
-                    <Sidebar notes={this.props.notes}/>
+                    <Sidebar />
                     <Wrapper>
                         <LinksContainer>
                             <StyledLink to={`/edit/${NoteId}`}>edit</StyledLink>
@@ -137,10 +149,6 @@ class SingleNote extends Component {
                     </Wrapper>
                 </React.Fragment>
             )
-        }
-        const NoteId = this.props.match.params.id;
-        if(!this.state.note) {
-            return <div>Loading...</div>
         }
         return <React.Fragment>
         <Sidebar notes={this.props.notes}/>
