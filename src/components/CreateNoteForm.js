@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import Switch from 'react-switch';
 import ReactMarkdown from 'react-markdown';
+import axios from 'axios';
 
 import Sidebar from './Sidebar';
 
@@ -63,6 +64,13 @@ const SwitchText = styled.h3`
   line-height: 0.8;
 `;
 
+const requestOptions = {
+    headers: {
+      Authorization: localStorage.getItem('authToken'),
+      'Access-Control-Allow-Origin': '*',
+    },
+};
+
 class CreateNoteForm extends Component {
     constructor(props) {
         super(props);
@@ -78,12 +86,29 @@ class CreateNoteForm extends Component {
         this.setState({ [e.target.name]: e.target.value });
     }
 
+    componentDidMount() {
+        const userID = this.props.userID();
+        if(!userID) {
+          this.props.history.push('/');
+        }
+    }
+
     handleSaveNote = e => {
         e.preventDefault();
         const { title, content, tags } = this.state;
-        this.props.addNote({ title, content, tags });
+        let newNote = { title, content, tags};
+        const author = this.props.userID;
+        newNote = { ...newNote, author };
+
+        axios.post(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, newNote, requestOptions)
+        .then(() => {
+          this.props.history.push('/notes');
+        })
+        .catch(err => {
+          console.log(err);
+        })
+
         this.setState({ title: '', content: '', tags: [] });
-        this.props.history.push("/notes");
     }
 
     handleToggle = (checked) => {
