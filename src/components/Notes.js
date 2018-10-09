@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import { Button, ButtonGroup } from 'reactstrap';
 import { SyncLoader } from 'react-spinners';
 import axios from "axios";
+import { CSVLink } from 'react-csv';
 
 import Sidebar from './Sidebar';
 
@@ -71,7 +72,7 @@ const StyledLink = styled(Link)`
 
 const Input = styled.input`
   padding: 0 1.5em 0 3.5em;
-  margin: 0 0 0 5em;
+  margin: 0 3em 0 4em;
   border-radius: 3px;
   width: 25%;
 
@@ -93,7 +94,7 @@ const Input = styled.input`
 
 const Container = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 
   @media (max-width: 1080px) {
     flex-direction: column;
@@ -102,7 +103,6 @@ const Container = styled.div`
 `;
 
 const StyledButtonGroup = styled(ButtonGroup)`
-  margin-left: 2em;
 
   @media (max-width: 751px) {
     margin-left: 0;
@@ -131,7 +131,7 @@ const ButtonContainer = styled.div`
 
 const requestOptions = {
   headers: {
-    Authorization: localStorage.getItem('Authorization'),
+    Authorization: localStorage.getItem('authToken'),
     'Access-Control-Allow-Origin': '*',
   },
 };
@@ -182,7 +182,12 @@ class Notes extends Component {
   }
 
   componentDidMount() {
-    this.fetchNotes();
+    const userID = this.props.userID();
+    if(userID) {
+      this.fetchNotes();
+    } else {
+      this.props.history.push('/');
+    }
   }
 
   fetchNotes = () => {
@@ -223,6 +228,7 @@ class Notes extends Component {
                 </StyledButtonGroup>
               </ButtonContainer>
               <Input type="text" value={this.state.searchInput} placeholder="Search Notes" onChange={this.handleSearchInput} />
+              <CSVLink data={this.state.notes} filename={"my-notes.csv"} target="_blank"><StyledButton>Export Notes to CSV</StyledButton></CSVLink>
             </Container>
               <SyncLoader color={'#00B9BC'} loading={this.state.loading}/>
             </Wrapper>
@@ -254,6 +260,7 @@ class Notes extends Component {
                 </StyledButtonGroup>
               </ButtonContainer>
               <Input type="text" value={this.state.searchInput} placeholder="Search Notes" onChange={this.handleSearchInput} />
+              <CSVLink data={this.state.notes} filename={"my-notes.csv"} target="_blank"><StyledButton>Export Notes to CSV</StyledButton></CSVLink>
             </Container>
             <List ref={this.dragulaDecorator}>
               {sortedList.map(note => {
