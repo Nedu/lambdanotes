@@ -6,7 +6,7 @@ import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import Background from '../img/background.jpg';
 import Header from './Header';
 
-const StyledForm = styled(Form) `
+const StyledForm = styled(Form)`
     width: 500px;
     margin: 75px auto;
 `;
@@ -46,12 +46,14 @@ class Register extends Component {
         };
         axios
           .post(`https://lambda-notes-app.herokuapp.com/api/v1/register`, user)
-          .then(newUser => {
-            this.props.history.push('/login');
+          .then(res => {
+            this.props.onRegister(res.data)
+            this.props.history.push('/notes');
             this.setState({ username: '', password: '' });
           })
           .catch(err => {
             console.log(err);
+            localStorage.removeItem('authToken');
           });
     };
 
