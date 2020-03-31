@@ -7,8 +7,32 @@ import Background from '../img/background.jpg';
 import Header from './Header';
 
 const StyledForm = styled(Form)`
-    width: 500px;
-    margin: 75px auto;
+    background-color: #f5f5f5;
+    padding: 5em;
+    border-radius: 8px;
+`;
+
+const StyledFormGroup = styled(FormGroup)`
+    margin-bottom: 1rem !important;
+`;
+
+const StyledButtonDiv = styled.div`
+    display: flex;
+    justify-content: center;
+`;
+
+const StyledButton = styled(Button)`
+    background-color: #00B9BC;
+    text-align: center;
+    border: none;
+    width: 100%;
+`;
+
+const StyledDiv = styled.div`
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;
 
 const mainBg = {
@@ -61,37 +85,42 @@ class Register extends Component {
         return (
             <React.Fragment>
                 <Header />
-                <StyledForm onSubmit={this.addUser} >
-                    <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                        <Label for="username" className="mr-sm-2">
-                            UserName:
-                        </Label>
-                        <Input
-                            type="text"
-                            id="username"
-                            onChange={this.handleInputChange}
-                            placeholder="username"
-                            name="username"
-                            value={this.state.username}
-                            required
-                        />
-                    </FormGroup>
-                    <FormGroup className="mb-2 mr-sm-2 mb-sm-0">
-                        <Label for="password" className="mr-sm-2">
-                            Password:
-                        </Label>
-                        <Input
-                            type="password"
-                            id="password"
-                            onChange={this.handleInputChange}
-                            placeholder="password"
-                            name="password"
-                            value={this.state.password}
-                            required
-                        />
-                    </FormGroup>
-                    <Button>Register</Button>
-                </StyledForm>
+                <StyledDiv>
+                    <StyledForm onSubmit={this.addUser} >
+                        <StyledFormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                            <Label for="username" className="mr-sm-2">
+                                UserName:
+                            </Label>
+                            <Input
+                                type="text"
+                                id="username"
+                                onChange={this.handleInputChange}
+                                placeholder="username"
+                                name="username"
+                                value={this.state.username}
+                                required
+                            />
+                        </StyledFormGroup>
+                        <StyledFormGroup className="mb-2 mr-sm-2 mb-sm-0">
+                            <Label for="password" className="mr-sm-2">
+                                Password:
+                            </Label>
+                            <Input
+                                type="password"
+                                id="password"
+                                onChange={this.handleInputChange}
+                                placeholder="password"
+                                name="password"
+                                value={this.state.password}
+                                required
+                            />
+                        </StyledFormGroup>
+                        <StyledButtonDiv>
+                            <StyledButton>Register</StyledButton>
+                        </StyledButtonDiv>
+                    </StyledForm>
+
+                </StyledDiv>
             </React.Fragment>
         );
     }
