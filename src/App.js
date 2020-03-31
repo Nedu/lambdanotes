@@ -12,6 +12,8 @@ import SingleNote from './components/SingleNote.js';
 import EditNoteForm from './components/EditNoteForm.js';
 import './App.css';
 
+require('dotenv').config()
+
 const Wrapper = styled.div`
   margin: 0 auto;
   width: 100%;
@@ -20,7 +22,7 @@ const Wrapper = styled.div`
 
 const Main = styled.div`
   display: flex;
-  height: auto
+  height: 100vh
 `;
 
 class App extends Component {

@@ -5,6 +5,7 @@ import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 
 import Background from '../img/background.jpg';
 import Header from './Header';
+require('dotenv').config()
 
 const StyledForm = styled(Form)`
     background-color: #f5f5f5;
@@ -35,6 +36,15 @@ const StyledDiv = styled.div`
     align-items: center;
 `;
 
+const StyledErrorDiv = styled.div`
+    color: red;
+    margin-bottom: 1rem;
+`;
+
+const StyledErrorText = styled.p`
+    color: 'red';
+`;
+
 const mainBg = {
     width: '100%',
     height: '100vh',
@@ -55,6 +65,7 @@ class Register extends Component {
         this.state = {
             username: '',
             password: '',
+            userExists: false,
         };
     }
 
@@ -69,7 +80,7 @@ class Register extends Component {
             password: this.state.password,
         };
         axios
-          .post(`https://lambda-notes-app.herokuapp.com/api/v1/register`, user)
+          .post(`${process.env.REACT_APP_API_URL}/register`, user)
           .then(res => {
             this.props.onRegister(res.data)
             this.props.history.push('/notes');
@@ -77,11 +88,18 @@ class Register extends Component {
           })
           .catch(err => {
             console.log(err);
+            console.log('err.response ==> ', err.response);
+            if (err.response) {
+                if (err.response.data && err.response.data.code === 'USEREXISTS') {
+                    this.setState({ userExists: true})
+                }
+            }
             localStorage.removeItem('authToken');
           });
     };
 
     render() {
+        const { userExists } = this.state;
         return (
             <React.Fragment>
                 <Header />
@@ -115,6 +133,7 @@ class Register extends Component {
                                 required
                             />
                         </StyledFormGroup>
+                        <StyledErrorDiv>{userExists && <StyledErrorText>User Already Exists</StyledErrorText>}</StyledErrorDiv>
                         <StyledButtonDiv>
                             <StyledButton>Register</StyledButton>
                         </StyledButtonDiv>

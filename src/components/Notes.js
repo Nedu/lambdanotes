@@ -30,6 +30,13 @@ const Heading = styled.h3`
   }
 `;
 
+const EmptyListContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  margin-top: 5rem;
+`
+
 const List = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -191,7 +198,7 @@ class Notes extends Component {
   }
 
   fetchNotes = () => {
-    axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, requestOptions)
+    axios.get(`${process.env.REACT_APP_API_URL}/notes`, requestOptions)
     .then(res => {
       console.log(res);
       this.setState({notes: res.data, loading: false})
@@ -262,7 +269,7 @@ class Notes extends Component {
               <Input type="text" value={this.state.searchInput} placeholder="Search Notes" onChange={this.handleSearchInput} />
               <CSVLink data={this.state.notes} filename={"my-notes.csv"} target="_blank"><StyledButton>Export Notes to CSV</StyledButton></CSVLink>
             </Container>
-            <List ref={this.dragulaDecorator}>
+            {sortedList && sortedList.length <= 0  ? <EmptyListContainer><IndividualNote>No notes yet :(</IndividualNote></EmptyListContainer> : <List ref={this.dragulaDecorator}>
               {sortedList.map(note => {
                 if (this.state.searchInput === '') {
                   return <IndividualNote key={note._id}>
@@ -296,7 +303,7 @@ class Notes extends Component {
                     </IndividualNote>;
                 }
               })}
-            </List>
+            </List>}
           </Wrapper>
           </React.Fragment>;
     }

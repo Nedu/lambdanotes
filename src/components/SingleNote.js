@@ -92,7 +92,7 @@ class SingleNote extends Component {
         const userID = this.props.userID();
         if(userID) {
             const { id } = this.props.match.params;
-            axios.get(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
+            axios.get(`${process.env.REACT_APP_API_URL}/notes/${id}`, requestOptions)
             .then(res => {
                 console.log(res)
                 this.setState({note: res.data, loading: false})
@@ -112,7 +112,7 @@ class SingleNote extends Component {
     handleDelete = (id) => {
         this.toggleModal();
 
-        axios.delete(`https://lambda-notes-app.herokuapp.com/api/v1/notes/${id}`, requestOptions)
+        axios.delete(`${process.env.REACT_APP_API_URL}/notes/${id}`, requestOptions)
         .then(() => {
           this.props.history.push("/notes");
         })

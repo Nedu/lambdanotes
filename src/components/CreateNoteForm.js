@@ -100,7 +100,7 @@ class CreateNoteForm extends Component {
         const author = this.props.userID;
         newNote = { ...newNote, author };
 
-        axios.post(`https://lambda-notes-app.herokuapp.com/api/v1/notes`, newNote, requestOptions)
+        axios.post(`${process.env.REACT_APP_API_URL}/notes`, newNote, requestOptions)
         .then(() => {
           this.props.history.push('/notes');
         })

@@ -68,7 +68,7 @@ class Login extends Component {
             password: this.state.password,
         };
         axios
-          .post(`https://lambda-notes-app.herokuapp.com/api/v1/login`, user)
+          .post(`${process.env.REACT_APP_API_URL}/login`, user)
           .then(res => {
             console.log(res);
             this.props.onLogin(res.data)
