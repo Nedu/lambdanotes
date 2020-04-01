@@ -12,6 +12,7 @@ const Wrapper = styled.div`
     background-color: #f2f1f2;
     width: 75%;
     padding: 25px 0 70px 2.4em;
+    min-height: 100vh;
 `;
 
 const NoteHeading = styled.h3`
