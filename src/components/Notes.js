@@ -199,7 +199,12 @@ class Notes extends Component {
   }
 
   fetchNotes = () => {
-    axios.get(`${process.env.REACT_APP_API_URL}/notes`, requestOptions)
+    axios.get(`${process.env.REACT_APP_API_URL}/notes`, {
+      headers: {
+        Authorization: localStorage.getItem('authToken'),
+        'Access-Control-Allow-Origin': '*',
+      },
+    })
     .then(res => {
       console.log(res);
       this.setState({notes: res.data, loading: false})
